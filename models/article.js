@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const validator = require("validator");
+const { validateURL } = require("../utils/validator");
 
 const articleSchema = new mongoose.Schema({
   keyword: {
@@ -26,22 +26,16 @@ const articleSchema = new mongoose.Schema({
     type: String,
     required: true,
     validate: {
-      validator(value) {
-        const urlRegex =
-          /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-        return urlRegex.test(value);
-      },
+      validator: validateURL,
+      message: "The link field must be a valid URL",
     },
   },
   image: {
     type: String,
     required: true,
     validate: {
-      validator(value) {
-        const urlRegex =
-          /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
-        return urlRegex.test(value);
-      },
+      validator: validateURL,
+      message: "The image field must be a valid URL",
     },
   },
   owner: {
