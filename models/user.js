@@ -2,7 +2,6 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 
-// Define the user schema
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
