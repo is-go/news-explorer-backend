@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
   username: {
     type: String,
     required: [true, "The username field is required."],
-    minlength: [1, "The username must be at least 1 character long."],
+    minlength: [2, "The username must be at least 2 character long."],
     maxlength: [30, "The username must be at most 30 characters long."],
   },
   email: {
@@ -14,7 +14,7 @@ const userSchema = new mongoose.Schema({
     required: [true, "The email field is required."],
     unique: true,
     validate: {
-      validator(value) {
+      validator: function validateEmail(value) {
         return validator.isEmail(value);
       },
       message: "You must enter a valid email.",
@@ -23,27 +23,16 @@ const userSchema = new mongoose.Schema({
   password: {
     type: String,
     required: [true, "The password field is required."],
-    minlength: [1, "The password must be at least 1 character long."],
-    maxlength: [30, "The password must be at most 30 characters long."],
+    // minlength: [1, "The password must be at least 1 character long."],
+    // maxlength: [30, "The password must be at most 30 characters long."], ADDED TO CONTROLLER
     select: false,
   },
 });
 
-// Hash the user's password before saving
-userSchema.pre("save", async function (next) {
-  if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  next();
-});
-
-// Method to compare passwords
-userSchema.methods.comparePassword = function (candidatePassword) {
-  return bcrypt.compare(candidatePassword, this.password);
-};
-
-// Static method to find user by email and password
-userSchema.statics.findUserByCredentials = function (email, password) {
+userSchema.statics.findUserByCredentials = function comparePassword(
+  email,
+  password,
+) {
   return this.findOne({ email })
     .select("+password")
     .then((user) => {
@@ -60,5 +49,12 @@ userSchema.statics.findUserByCredentials = function (email, password) {
       });
     });
 };
+
+userSchema.pre("save", async function hashBefore (next) {
+  if (this.isModified("password")) {
+    this.password = await bcrypt.hash(this.password, 10);
+  }
+  next();
+});
 
 module.exports = mongoose.model("User", userSchema);

@@ -1,5 +1,18 @@
 const { Joi, celebrate } = require("celebrate");
-const { validateURL } = require("../utils/validator");
+const validator = require("validator");
+
+const validateURL = (value, helpers) => {
+  if (
+    typeof value !== "string" ||
+    !validator.isURL(value, {
+      protocols: ["http", "https"],
+      require_protocol: true,
+    })
+  ) {
+    return helpers.error("string.uri");
+  }
+  return value;
+};
 
 module.exports.validateUserBody = celebrate({
   body: Joi.object().keys({

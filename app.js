@@ -1,24 +1,21 @@
 require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
+
 mongoose.set("strictQuery", true);
 const cors = require("cors");
 const { errors } = require("celebrate");
 const limiter = require("./middlewares/limiter");
+const config = require("./utils/config");
 
 const mainRouter = require("./routes/index");
 const errorHandler = require("./middlewares/error-handler");
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const app = express();
-const { PORT = 3001, MONGODB_URI = "mongodb://127.0.0.1:27017/wtwr_db" } =
-  process.env;
 
 mongoose
-  .connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(config.MONGODB_URI) // Use config value
   .then(() => {
     console.log("Connected to DB");
   })
@@ -47,8 +44,8 @@ app.use(errors());
 // Custom error handling middleware
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`App is listening on port ${PORT}`);
+app.listen(config.PORT, () => {
+  console.log(`App is listening on port ${config.PORT}`);
 });
 
 console.log("hello world!");

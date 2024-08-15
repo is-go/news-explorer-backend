@@ -25,22 +25,74 @@ const createArticle = (req, res, next) => {
     });
 };
 
-// Delete an article by _id
 const deleteArticle = (req, res, next) => {
   const { articleId } = req.params;
 
   Article.findById(articleId)
+    .select("+owner") // Ensure owner is selected
     .orFail(() => new NotFoundError("Article not found"))
     .then((article) => {
       if (!article.owner.equals(req.user._id)) {
         throw new ForbiddenError(
-          "You do not have permission to delete this article"
+          "You do not have permission to delete this article",
         );
       }
-      return article
-        .remove()
+      return Article.deleteOne({ _id: articleId }) // Use deleteOne instead of remove
         .then(() => res.status(200).send({ message: "Article deleted" }));
     })
+    .catch(next);
+};
+
+const toggleSaveArticle = (req, res, next) => {
+  const { articleId } = req.params;
+
+  Article.findById(articleId)
+    .select("+owner") // Ensure owner is selected
+    .orFail(() => new NotFoundError("Article not found"))
+    .then((article) => {
+      if (!article.owner.equals(req.user._id)) {
+        throw new ForbiddenError(
+          "You do not have permission to save or unsave this article",
+        );
+      }
+      // Create a copy of the article object and toggle the isSaved status
+      const updatedArticle = article.toObject();
+      updatedArticle.isSaved = !article.isSaved;
+
+      return Article.findByIdAndUpdate(article._id, updatedArticle, {
+        new: true,
+      });
+    })
+    .then((updatedArticle) =>
+      res.status(200).send({
+        message: `Article ${updatedArticle.isSaved ? "saved" : "unsaved"}`,
+        article: updatedArticle,
+      }),
+    )
+    .catch(next);
+};
+
+const deleteSavedArticle = (req, res, next) => {
+  const { articleId } = req.params;
+
+  Article.findById(articleId)
+    .select("+owner") // Ensure owner is selected
+    .orFail(() => new NotFoundError("Article not found"))
+    .then((article) => {
+      if (!article.owner.equals(req.user._id)) {
+        throw new ForbiddenError(
+          "You do not have permission to delete this article",
+        );
+      }
+      // Create a copy of the article object and set isSaved to false
+      const updatedArticle = article.toObject();
+      updatedArticle.isSaved = false;
+
+      return Article.findByIdAndUpdate(article._id, updatedArticle, {
+        new: true,
+      });
+    })
+    .then(() => res.status(200).send({ message: "Article unsaved" }))
     .catch(next);
 };
 
@@ -48,4 +100,6 @@ module.exports = {
   getSavedArticles,
   createArticle,
   deleteArticle,
+  toggleSaveArticle,
+  deleteSavedArticle,
 };

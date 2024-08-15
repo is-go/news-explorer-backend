@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { validateURL } = require("../utils/validator");
 
 const articleSchema = new mongoose.Schema({
   keyword: {
@@ -25,18 +24,10 @@ const articleSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
-    validate: {
-      validator: validateURL,
-      message: "The link field must be a valid URL",
-    },
   },
   image: {
     type: String,
     required: true,
-    validate: {
-      validator: validateURL,
-      message: "The image field must be a valid URL",
-    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
