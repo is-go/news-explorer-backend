@@ -3,7 +3,7 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema({
-  username: {
+  user: {
     type: String,
     required: [true, "The username field is required."],
     minlength: [2, "The username must be at least 2 character long."],
@@ -49,12 +49,5 @@ userSchema.statics.findUserByCredentials = function comparePassword(
       });
     });
 };
-
-userSchema.pre("save", async function hashBefore (next) {
-  if (this.isModified("password")) {
-    this.password = await bcrypt.hash(this.password, 10);
-  }
-  next();
-});
 
 module.exports = mongoose.model("User", userSchema);

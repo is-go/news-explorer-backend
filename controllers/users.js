@@ -9,9 +9,9 @@ const NotFoundError = require("../errors/not-found-err");
 const UnauthorizedError = require("../errors/unauthorized-err");
 
 const createUser = (req, res, next) => {
-  const { username, email, password } = req.body;
+  const { user, email, password } = req.body;
 
-  if (!email || !password || !username) {
+  if (!email || !password || !user) {
     return next(new BadRequestError("Invalid data"));
   }
 
@@ -31,7 +31,7 @@ const createUser = (req, res, next) => {
       }
 
       return bcrypt.hash(password, 10).then((hash) =>
-        User.create({ username, email, password: hash }).then((newUser) => {
+        User.create({ user, email, password: hash }).then((newUser) => {
           const payload = newUser.toObject();
           delete payload.password; // Remove the password from the response
           return res.status(201).send({ data: payload });
