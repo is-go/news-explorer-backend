@@ -1,10 +1,10 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 const User = require("./user");
 
 // Connect to the database before all tests
 beforeAll(async () => {
-  await mongoose.connect("mongodb://127.0.0.1:27017/testdb", {
-  });
+  await mongoose.connect("mongodb://127.0.0.1:27017/testdb", {});
 });
 
 // Drop the database before each test
@@ -22,10 +22,12 @@ describe("User Model", () => {
     const email = "testuser@example.com";
     const password = "password123";
 
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = new User({
-      user: "testuser",
+      name: "testuser",
       email,
-      password,
+      password: hashedPassword,
     });
 
     await user.save();

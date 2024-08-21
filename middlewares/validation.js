@@ -16,10 +16,10 @@ const validateURL = (value, helpers) => {
 
 module.exports.validateUserBody = celebrate({
   body: Joi.object().keys({
-    username: Joi.string().required().min(1).max(30).messages({
-      "string.min": 'The minimum length of the "username" field is 1',
-      "string.max": 'The maximum length of the "username" field is 30',
-      "string.empty": 'The "username" field must be filled in',
+    name: Joi.string().required().min(2).max(30).messages({
+      "string.min": 'The minimum length of the "user" field is 2',
+      "string.max": 'The maximum length of the "user" field is 30',
+      "string.empty": 'The "user" field must be filled in',
     }),
     email: Joi.string().required().email().messages({
       "string.empty": 'The "email" field must be filled in',

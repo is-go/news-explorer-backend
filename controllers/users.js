@@ -9,16 +9,17 @@ const NotFoundError = require("../errors/not-found-err");
 const UnauthorizedError = require("../errors/unauthorized-err");
 
 const createUser = (req, res, next) => {
-  const { user, email, password } = req.body;
+  console.log(req.body);
+  const { name, email, password } = req.body;
 
-  if (!email || !password || !user) {
+  if (!email || !password || !name) {
     return next(new BadRequestError("Invalid data"));
   }
 
   // Validate password length before hashing
   if (password.length < 6 || password.length > 30) {
     return next(
-      new BadRequestError("Password must be between 8 and 30 characters long."),
+      new BadRequestError("Password must be between 6 and 30 characters long."),
     );
   }
 
@@ -31,7 +32,7 @@ const createUser = (req, res, next) => {
       }
 
       return bcrypt.hash(password, 10).then((hash) =>
-        User.create({ user, email, password: hash }).then((newUser) => {
+        User.create({ name, email, password: hash }).then((newUser) => {
           const payload = newUser.toObject();
           delete payload.password; // Remove the password from the response
           return res.status(201).send({ data: payload });
